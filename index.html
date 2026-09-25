@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор вейджера: скільки треба поставити, щоб відіграти бонус</title>
+<meta name="description" content="Порахуйте обсяг відіграшу бонусу з урахуванням вейджера, внеску ігор і максимальної ставки. Калькулятор вейджера українською.">
+<style>
+	:root { --ink: #231f20; --accent: #b3261e; --paper: #fffdf8; }
+	body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 Georgia, 'Times New Roman', serif; }
+	main { max-width: 680px; margin: 0 auto; padding: 32px 18px 56px; }
+	h1 { font-size: 1.8rem; line-height: 1.25; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+	h2 { font-size: 1.25rem; margin-top: 36px; }
+	form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; background: #f6efe3; padding: 18px; border-radius: 4px; }
+	form label { display: flex; flex-direction: column; font: 14px/1.4 Arial, sans-serif; }
+	form input, form select { font: 16px Arial, sans-serif; padding: 6px; margin-top: 4px; border: 1px solid #bfb3a0; }
+	#out { margin-top: 18px; font: 16px/1.6 Arial, sans-serif; background: #fff; border-left: 4px solid var(--accent); padding: 12px 16px; }
+	a { color: var(--accent); }
+	small { color: #6b625a; }
+	@media (max-width: 520px) { form { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+	<h1>Калькулятор вейджера</h1>
+	<p>Вейджер показує, скільки разів треба прокрутити бонус у ставках, перш ніж його можна вивести. Цифра в умовах виглядає абстрактно, тому простіше одразу перевести її у гривні та кількість спінів.</p>
+
+	<form id="f">
+		<label>Сума бонусу, ₴<input name="bonus" type="number" value="1000" min="0"></label>
+		<label>Депозит, ₴<input name="deposit" type="number" value="1000" min="0"></label>
+		<label>Вейджер, x<input name="wager" type="number" value="35" min="0"></label>
+		<label>Вейджер рахується від
+			<select name="base"><option value="bonus">бонусу</option><option value="both">бонусу + депозиту</option></select>
+		</label>
+		<label>Внесок гри, %<input name="contrib" type="number" value="100" min="1" max="100"></label>
+		<label>Ставка за спін, ₴<input name="bet" type="number" value="10" min="0.1" step="0.1"></label>
+	</form>
+	<div id="out"></div>
+
+	<h2>Що означають поля</h2>
+	<p><b>Від чого рахується вейджер.</b> Деякі казино множать вейджер лише на бонус, інші — на суму бонусу й депозиту. Друга схема подвоює обсяг відіграшу при бонусі 100%.</p>
+	<p><b>Внесок гри.</b> Слоти зазвичай зараховуються на 100%, live-ігри та рулетка — частково або не враховуються. При внеску 10% обсяг ставок зростає в десять разів.</p>
+	<p><b>Ставка за спін.</b> Під час відіграшу діє максимальна ставка. Якщо її перевищити, бонус можуть анулювати.</p>
+
+	<h2>Як оцінити, чи вартий бонус зусиль</h2>
+	<p>При RTP слотів близько 96% казино в середньому залишає собі 4% від кожної ставки. Помножте обсяг відіграшу на 4% — це приблизна очікувана «вартість» відіграшу. Якщо вона більша за сам бонус, у середньому ви його не відіграєте.</p>
+	<p>Приклад умов вітального пакета, кешбеку і акцій з реальними вейджерами — в огляді <a href="https://favbet.dp.ua/">Favbet (Фавбет)</a>.</p>
+
+	<p><small>Розрахунки мають довідковий характер і не гарантують результату. Азартні ігри — лише з 21 року.</small></p>
+</main>
+<script>
+	const f = document.getElementById('f');
+	function calc() {
+		const v = Object.fromEntries(new FormData(f));
+		const base = +v.bonus + (v.base === 'both' ? +v.deposit : 0);
+		const turnover = base * +v.wager / (+v.contrib / 100);
+		const spins = +v.bet > 0 ? Math.ceil(turnover / +v.bet) : 0;
+		const cost = turnover * 0.04;
+		document.getElementById('out').innerHTML =
+			'Обсяг відіграшу: <b>' + turnover.toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴</b><br>' +
+			'Спінів по ' + v.bet + ' ₴: <b>' + spins.toLocaleString('uk-UA') + '</b><br>' +
+			'Очікувана втрата при RTP 96%: <b>≈ ' + cost.toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴</b> ' +
+			(cost > +v.bonus ? '— більше за бонус' : '— менше за бонус');
+	}
+	f.addEventListener('input', calc);
+	calc();
+</script>
+</body>
+</html>
